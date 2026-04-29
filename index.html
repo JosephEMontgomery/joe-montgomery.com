@@ -78,6 +78,7 @@
     }
 
     .project-card {
+      position: relative;
       background: #fff;
       border: 1px solid #e4e4e0;
       border-radius: 8px;
@@ -91,6 +92,8 @@
     .project-info {
       flex: 1;
       min-width: 0;
+      position: relative;
+      z-index: 2;
     }
 
     .project-title {
@@ -120,6 +123,8 @@
       border: 1.5px solid transparent;
       white-space: nowrap;
       flex-shrink: 0;
+      position: relative;
+      z-index: 2;
       transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
       min-height: 36px;
     }
@@ -135,6 +140,65 @@
       background: #f0f0ee;
       border-color: #999;
     }
+
+    /* ─── Oil drip animation ─────────────────────────────── */
+
+    #card-ultrapure {
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    /* The overlay that wraps all drip elements */
+    .drip-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+    }
+
+    /* When the card has the active class, fade the overlay in then out */
+    #card-ultrapure.is-dripping .drip-overlay {
+      animation: drip-curtain 5s ease forwards;
+    }
+
+    @keyframes drip-curtain {
+      0%   { opacity: 0; }
+      8%   { opacity: 1; }
+      80%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* Individual drip drops */
+    .drip {
+      position: absolute;
+      top: 0;
+      left: var(--x);
+      width: var(--w);
+      height: var(--h);
+      border-radius: 45% 45% 55% 55% / 35% 35% 65% 65%;
+      background: linear-gradient(
+        to bottom,
+        rgba(210, 148, 18, 0.88),
+        rgba(158, 92, 4, 0.72)
+      );
+      box-shadow: 0 0 5px rgba(200, 130, 10, 0.25);
+      transform: translateY(-70px);
+    }
+
+    /* Only animate when card is dripping */
+    #card-ultrapure.is-dripping .drip {
+      animation: drip-fall var(--dur) ease-in var(--delay) infinite;
+    }
+
+    @keyframes drip-fall {
+      0%   { transform: translateY(-70px); }
+      100% { transform: translateY(180px); }
+    }
+
+    /* ─────────────────────────────────────────────────────── */
 
     /* Connect section */
     .connect {
@@ -215,7 +279,23 @@
 
     <ul class="portfolio" role="list">
 
-      <li class="project-card">
+      <!-- Ultra-Pure Oils — click (not the link) triggers oil drip animation -->
+      <li class="project-card" id="card-ultrapure">
+
+        <!-- Oil drip overlay (pure CSS animation) -->
+        <div class="drip-overlay" aria-hidden="true">
+          <div class="drip" style="--x:5%;  --w:5px; --h:38px; --dur:1.40s; --delay:0.00s;"></div>
+          <div class="drip" style="--x:14%; --w:3px; --h:22px; --dur:1.65s; --delay:0.38s;"></div>
+          <div class="drip" style="--x:24%; --w:6px; --h:48px; --dur:1.20s; --delay:0.12s;"></div>
+          <div class="drip" style="--x:35%; --w:4px; --h:30px; --dur:1.55s; --delay:0.58s;"></div>
+          <div class="drip" style="--x:46%; --w:7px; --h:52px; --dur:1.15s; --delay:0.22s;"></div>
+          <div class="drip" style="--x:57%; --w:3px; --h:20px; --dur:1.80s; --delay:0.48s;"></div>
+          <div class="drip" style="--x:67%; --w:5px; --h:40px; --dur:1.35s; --delay:0.08s;"></div>
+          <div class="drip" style="--x:77%; --w:4px; --h:28px; --dur:1.50s; --delay:0.32s;"></div>
+          <div class="drip" style="--x:87%; --w:6px; --h:44px; --dur:1.25s; --delay:0.18s;"></div>
+          <div class="drip" style="--x:95%; --w:3px; --h:24px; --dur:1.70s; --delay:0.42s;"></div>
+        </div>
+
         <div class="project-info">
           <p class="project-title">Ultra-Pure Oils</p>
           <p class="project-desc">Wind instrument care products, owned by Eastman Music Company. I serve as product manager, overseeing the Ultra-Pure Oils company.</p>
@@ -307,5 +387,27 @@
   <footer>
     &copy; 2026 Joe Montgomery
   </footer>
+
+  <script>
+    (function () {
+      var card = document.getElementById('card-ultrapure');
+      var timer = null;
+
+      card.addEventListener('click', function (e) {
+        // Ignore clicks on the link button
+        if (e.target.closest('a')) return;
+
+        // Force-restart the animation even if already running
+        card.classList.remove('is-dripping');
+        void card.offsetWidth; // trigger reflow so the animation restarts cleanly
+        card.classList.add('is-dripping');
+
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          card.classList.remove('is-dripping');
+        }, 5000);
+      });
+    })();
+  </script>
 </body>
 </html>
